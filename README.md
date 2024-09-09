@@ -40,11 +40,11 @@ To start the Ethereum Deposit Tracker:
 ```
 node index.js
 
-or 
+or
 
+pm2 start index.js
 ```
-pm2 start index.js (pm2 is a process manager for Node.js, which helps in automatically restarting applications when they crash or when you stop or restart your computer.)
-```
+ ( pm2 is a process manager for Node.js, which helps in automatically restarting applications when they crash or when you stop or restart your computer.)
 
 The tracker will begin monitoring the Beacon Deposit Contract for new deposits. When a deposit is detected, it will be saved to the MongoDB database and a notification will be sent via Telegram.
 
