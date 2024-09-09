@@ -1,0 +1,6 @@
+2024-09-10T01:53:57: (node:6372) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+2024-09-10T01:53:57: (Use `node --trace-warnings ...` to show where the warning was created)
+2024-09-10T01:53:57: (node:6372) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+2024-09-10T01:53:58: Connected to MongoDB
+2024-09-10T01:53:58: CSV export completed successfully
+2024-09-10T02:00:00: CSV export completed successfully
