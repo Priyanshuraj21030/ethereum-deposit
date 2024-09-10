@@ -66,16 +66,6 @@ The project consists of three main components: the deposit tracker, the API serv
    node export_to_csv.js
    ```
 
-#### Running with PM2
-
-To run all components together using PM2:
-
-```
-pm2 start index.js --name main-app
-pm2 start api.js --name api-server
-pm2 start export_to_csv.js --name csv-exporter --log csv-exporter.log --time
-```
-
 ### Grafana Integration
 
 To visualize your data in Grafana:
