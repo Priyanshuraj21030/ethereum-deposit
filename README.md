@@ -1,7 +1,5 @@
 # Ethereum Deposit Tracker
 
-## Priyanshu Raj 21BSA10107 Luganodes Assignment
-
 This project is an Ethereum Deposit Tracker that monitors and records ETH deposits on the Beacon Deposit Contract. It provides real-time tracking, data storage, API access, and CSV export functionality for integration with visualization tools like Grafana.
 
 ### Features
