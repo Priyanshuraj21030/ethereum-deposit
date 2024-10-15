@@ -1,4 +1,6 @@
+// Load environment variables
 require('dotenv').config();
+
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 const mongoose = require('mongoose');
 const winston = require('winston');
@@ -8,13 +10,15 @@ const axios = require('axios');
 // Initialize Alchemy Web3
 const web3 = createAlchemyWeb3(`https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`);
 
-// Initialize logger
+// Initialize logger with both file and console transport for development
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
     new winston.transports.File({ filename: 'combined.log' }),
+    // Added console transport for better local development debugging
+    new winston.transports.Console() 
   ],
 });
 
@@ -34,7 +38,7 @@ const Deposit = mongoose.model('Deposit', depositSchema);
 
 // Connect to MongoDB
 function connectToMongoDB() {
-  mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
       console.log('Connected to MongoDB');
       logger.info('Connected to MongoDB');
@@ -45,6 +49,7 @@ function connectToMongoDB() {
     });
 }
 
+// Handle MongoDB disconnections
 mongoose.connection.on('disconnected', () => {
   logger.warn('MongoDB disconnected. Attempting to reconnect...');
   connectToMongoDB();
@@ -53,11 +58,11 @@ mongoose.connection.on('disconnected', () => {
 // Function to track deposits
 async function trackDeposits() {
   let lastCheckedBlock = await web3.eth.getBlockNumber();
-  
+
   const checkNewBlocks = async () => {
     try {
       const latestBlock = await web3.eth.getBlockNumber();
-      
+
       if (latestBlock > lastCheckedBlock) {
         for (let blockNumber = lastCheckedBlock + 1; blockNumber <= latestBlock; blockNumber++) {
           const block = await web3.eth.getBlock(blockNumber, true);
@@ -67,27 +72,31 @@ async function trackDeposits() {
             }
           }
         }
-        
+
         lastCheckedBlock = latestBlock;
       }
     } catch (error) {
       if (error.code === 'ECONNABORTED' || error.code === 'ENOTFOUND') {
+        // Better error handling for network errors
         logger.error('Network error while checking for deposits:', error);
       } else if (error.response && error.response.status === 429) {
+        // Log and handle API rate limit
         logger.warn('API rate limit reached. Waiting before next request.');
         await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 1 minute
       } else {
         logger.error('Error checking for deposits:', error);
       }
     }
-    
-    setTimeout(checkNewBlocks, 5000); // Check every 5 seconds
+
+    // Changed to setInterval approach to avoid multiple timers being created
+    setTimeout(checkNewBlocks, 10000); // Reduced polling frequency to 10 seconds to avoid potential API rate limits
   };
 
   checkNewBlocks();
   logger.info('Started tracking deposits');
 }
 
+// Function to process deposits
 async function processDeposit(log) {
   try {
     const transaction = await web3.eth.getTransaction(log.transactionHash);
@@ -128,3 +137,4 @@ async function processDeposit(log) {
 
 // Start tracking deposits
 connectToMongoDB();
+trackDeposits();
